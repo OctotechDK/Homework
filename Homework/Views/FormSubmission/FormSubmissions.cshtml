@@ -1,0 +1,37 @@
+﻿@using PagedList.Mvc;
+@model PagedList.IPagedList<Homework.Models.FormSubmissionViewModel>
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
+
+<h2>@ViewBag.Title</h2>
+
+@if (!Model.Any())
+{
+    <p>No submissions yet :(</p>
+    return;
+}
+
+<table class="table">
+    <tr>
+        <th>First Name</th>
+        <th>Sur Name</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>Date of birth</th>
+        <th>Serial number</th>
+    </tr>
+    @foreach (var submission in Model)
+    {
+        <tr>
+            <td>@submission.FirstName</td>
+            <td>@submission.SurName</td>
+            <td>@submission.Email</td>
+            <td>@submission.PhoneNumber</td>
+            <td>@submission.DateOfBirth.Value.ToString("d")</td>
+            <td>@submission.ProductSerialNumber</td>
+        </tr>
+    }
+</table>
+<br />
+Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+
+@Html.PagedListPager(Model, page => Url.Action("Index", new { page }))
