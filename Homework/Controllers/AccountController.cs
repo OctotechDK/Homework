@@ -1,7 +1,7 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using Homework.Business.Models;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
@@ -12,34 +12,15 @@ namespace Homework.Controllers
     [Authorize]
     public class AccountController : Controller
     {
-        //private ApplicationSignInManager signInManager;
-        //private ApplicationUserManager userManager;
-
-        //public AccountController()
-        //{
-        //}
-
         public AccountController(ApplicationUserManager userManager, ApplicationSignInManager signInManager )
         {
             UserManager = userManager;
             SignInManager = signInManager;
         }
 
-        public ApplicationSignInManager SignInManager
-        {
-            get;
-            set;
-            //get => signInManager ?? HttpContext.GetOwinContext().Get<ApplicationSignInManager>();
-            //private set => signInManager = value;
-        }
+        public ApplicationSignInManager SignInManager { get; set; }
 
-        public ApplicationUserManager UserManager
-        {
-            get;
-            set;
-            //get => userManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
-            //private set => userManager = value;
-        }
+        public ApplicationUserManager UserManager { get; set; }
 
         //
         // GET: /Account/Login
@@ -71,8 +52,6 @@ namespace Homework.Controllers
                     return RedirectToLocal(returnUrl);
                 case SignInStatus.LockedOut:
                     return View("Lockout");
-                case SignInStatus.RequiresVerification:
-                    return RedirectToAction("SendCode", new { ReturnUrl = returnUrl, RememberMe = model.RememberMe });
                 case SignInStatus.Failure:
                 default:
                     ModelState.AddModelError("", "Invalid login attempt.");

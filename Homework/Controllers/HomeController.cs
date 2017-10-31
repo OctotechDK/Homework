@@ -1,5 +1,5 @@
 ﻿using System.Web.Mvc;
-using Homework.Models;
+using Homework.Business.Models;
 
 namespace Homework.Controllers
 {

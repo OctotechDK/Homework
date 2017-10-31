@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using System.Web.Mvc;
-using Homework.Models;
+using Homework.Business.Models;
 using PagedList;
 
 namespace Homework.Controllers

@@ -1,6 +1,4 @@
-using Homework.Business.Models;
-
-namespace Homework.Migrations
+namespace Homework.Business.Migrations
 {
     using Models;
     using Microsoft.AspNet.Identity;

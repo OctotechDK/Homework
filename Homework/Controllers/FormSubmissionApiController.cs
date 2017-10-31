@@ -2,12 +2,10 @@
 using System.Data.Entity;
 using System.Net;
 using System.Net.Http;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
-using System.Web.Mvc;
-using Homework.Models;
+using Homework.Business.Models;
 
 namespace Homework.Controllers
 {
@@ -20,7 +18,7 @@ namespace Homework.Controllers
             this.context = context;
         }
 
-        [System.Web.Http.HttpPost]
+        [HttpPost]
         public async Task<JsonResult<SuccessResponse>> Submit(FormSubmissionViewModel model)
         {
             if (!ModelState.IsValid || !model.DateOfBirth.HasValue || !model.ProductSerialNumber.HasValue)
