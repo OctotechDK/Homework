@@ -1,21 +1,22 @@
-﻿using System;
-using System.Data.Entity;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
 using Homework.Business.Models;
+using Homework.Business.Repositories;
 
 namespace Homework.Controllers
 {
     public class FormSubmissionApiController : ApiController
     {
-        private readonly ApplicationDbContext context; 
+        private readonly ISubmissionsRepository submissionsRepository;
+        private readonly IDrawRepository drawRepository;
 
-        public FormSubmissionApiController(ApplicationDbContext context)
+        public FormSubmissionApiController(ISubmissionsRepository submissionsRepository, IDrawRepository drawRepository)
         {
-            this.context = context;
+            this.submissionsRepository = submissionsRepository;
+            this.drawRepository = drawRepository;
         }
 
         [HttpPost]
@@ -28,7 +29,7 @@ namespace Homework.Controllers
                     ReasonPhrase = "Model is not valid"
                 });
 
-            var validSerial = context.DrawSerialNumbers.AnyAsync(x => x.Id == model.ProductSerialNumber);
+            var validSerial = drawRepository.IsValidDrawProductSerialNumber(model.ProductSerialNumber.Value);
 
             if(!await validSerial)
                 throw new HttpResponseException(new HttpResponseMessage(HttpStatusCode.BadRequest)
@@ -37,7 +38,7 @@ namespace Homework.Controllers
                     ReasonPhrase = "Supplied product serial number not valid"
                 });
 
-            var validSubmissionAmount = context.Submissions.CountAsync(x => x.ProductSerialNumber == model.ProductSerialNumber);
+            var validSubmissionAmount = submissionsRepository.GetTotalSubmissionCountForProductSerial(model.ProductSerialNumber.Value);
 
             if(await validSubmissionAmount == 2)
                 throw new HttpResponseException(new HttpResponseMessage(HttpStatusCode.BadRequest)
@@ -46,25 +47,7 @@ namespace Homework.Controllers
                     ReasonPhrase = "Maximum allowed submissions surpassed"
                 });
 
-            context.Submissions.Add(new FormSubmissionModel
-            {
-                Id = Guid.NewGuid(),
-                FirstName = model.FirstName,
-                SurName = model.SurName,
-                Email = model.Email,
-                PhoneNumber = model.PhoneNumber,
-                DateOfBirth = model.DateOfBirth.Value,
-                ProductSerialNumber = model.ProductSerialNumber.Value
-            });
-
-            try
-            {
-                var save = context.SaveChanges();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-            }
+            await submissionsRepository.AddSubmissionAsync(model);
 
             return Json(new SuccessResponse(model.FirstName));
         }

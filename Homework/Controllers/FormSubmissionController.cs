@@ -1,6 +1,8 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using System.Web.Mvc;
 using Homework.Business.Models;
+using Homework.Business.Repositories;
 using PagedList;
 
 namespace Homework.Controllers
@@ -8,30 +10,31 @@ namespace Homework.Controllers
     [Authorize]
     public class FormSubmissionController : Controller
     {
-        private readonly ApplicationDbContext context;
+        private const int PageSize = 10;
+        private readonly ISubmissionsRepository submissionsRepository;
 
-        public FormSubmissionController(ApplicationDbContext context)
+        public FormSubmissionController(ISubmissionsRepository submissionsRepository)
         {
-            this.context = context;
+            this.submissionsRepository = submissionsRepository;
         }
 
-        public ViewResult Index(int? page)
+        public async Task<ViewResult> Index(int? page)
         {
             ViewBag.Title = "Form Submissions";
 
-            var submissions = context.Submissions.Select(submission => new FormSubmissionViewModel
-            {
-                FirstName = submission.FirstName,
-                SurName = submission.SurName,
-                Email = submission.Email,
-                PhoneNumber = submission.PhoneNumber,
-                DateOfBirth = submission.DateOfBirth,
-                ProductSerialNumber = submission.ProductSerialNumber
-            });
+            var submissions = (await submissionsRepository.GetAllSubmissionsAsync())
+                .Select(submission => new FormSubmissionViewModel
+                {
+                    FirstName = submission.FirstName,
+                    SurName = submission.SurName,
+                    Email = submission.Email,
+                    PhoneNumber = submission.PhoneNumber,
+                    DateOfBirth = submission.DateOfBirth,
+                    ProductSerialNumber = submission.ProductSerialNumber
+                });
 
-            int pageSize = 10;
-            int pageNumber = page ?? 1;
-            return View("FormSubmissions", submissions.OrderBy(x => x.SurName).ThenBy(x => x.FirstName).ToPagedList(pageNumber, pageSize));
+            var pageNumber = page ?? 1;
+            return View("FormSubmissions", submissions.OrderBy(x => x.SurName).ThenBy(x => x.FirstName).ToPagedList(pageNumber, PageSize));
         }
     }
 }

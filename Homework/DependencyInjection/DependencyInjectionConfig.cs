@@ -7,8 +7,9 @@ using Autofac;
 using Autofac.Core;
 using Autofac.Integration.Mvc;
 using Autofac.Integration.WebApi;
+using Homework.Business;
 using Homework.Business.Models;
-using Homework.Controllers;
+using Homework.Business.Repositories;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 
@@ -20,10 +21,10 @@ namespace Homework.DependencyInjection
         {
             var builder = new ContainerBuilder();
 
-            builder.RegisterType<ApplicationDbContext>().AsSelf().InstancePerLifetimeScope();
+            builder.RegisterType<ApplicationDbContext>().As<IApplicationDbContext>().InstancePerLifetimeScope();
 
             var dbContextParameter = new ResolvedParameter((pi, ctx) => pi.ParameterType == typeof(DbContext),
-                (pi, ctx) => ctx.Resolve<ApplicationDbContext>());
+                (pi, ctx) => ctx.Resolve<IApplicationDbContext>());
 
             builder.RegisterType<UserStore<ApplicationUser>>().As<IUserStore<ApplicationUser>>().WithParameter(dbContextParameter).InstancePerLifetimeScope();
             builder.RegisterType<ApplicationUserManager>().AsSelf().InstancePerRequest();
@@ -32,7 +33,11 @@ namespace Homework.DependencyInjection
             builder.RegisterModule(new AutofacWebTypesModule());
             builder.RegisterFilterProvider();
             builder.RegisterControllers(Assembly.GetExecutingAssembly());
-            builder.RegisterType<FormSubmissionApiController>().AsSelf().InstancePerLifetimeScope();
+            builder.RegisterApiControllers(Assembly.GetExecutingAssembly());
+
+            // Custom types
+            builder.RegisterType<DrawRepository>().As<IDrawRepository>().InstancePerLifetimeScope();
+            builder.RegisterType<SubmissionsRepository>().As<ISubmissionsRepository>().InstancePerLifetimeScope();
 
             var container = builder.Build();
 

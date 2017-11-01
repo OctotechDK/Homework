@@ -1,5 +1,10 @@
-﻿using System.Data.Entity;
+﻿using System;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
+using System.Data.Entity.Validation;
 using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
@@ -18,7 +23,20 @@ namespace Homework.Business.Models
         }
     }
 
-    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+    public interface IApplicationDbContext
+    {
+        DbSet<FormSubmissionModel> Submissions { get; set; }
+        DbSet<DrawSerialNumberModel> DrawSerialNumbers { get; set; }
+        IDbSet<ApplicationUser> Users { get; set; }
+        IDbSet<IdentityRole> Roles { get; set; }
+        int SaveChanges();
+        Task<int> SaveChangesAsync();
+        Task<int> SaveChangesAsync(CancellationToken cancellationToken);
+        IEnumerable<DbEntityValidationResult> GetValidationErrors();
+        void Dispose();
+    }
+
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplicationDbContext
     {
         public ApplicationDbContext()
             : base("DefualtConnection", throwIfV1Schema: false)
