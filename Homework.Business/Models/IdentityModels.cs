@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
+using Homework.Business.Initialization;
 
 namespace Homework.Business.Models
 {
@@ -39,8 +40,10 @@ namespace Homework.Business.Models
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplicationDbContext
     {
         public ApplicationDbContext()
-            : base("DefualtConnection", throwIfV1Schema: false)
+            : base("DefaultConnection", throwIfV1Schema: false)
         {
+            Database.SetInitializer(new DatabaseInitializer());
+            Database.Initialize(false);
         }
 
         public static ApplicationDbContext Create()

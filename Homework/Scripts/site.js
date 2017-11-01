@@ -17,10 +17,12 @@
                 contentType: "application/json",
                 success: function (data) {
                     $('#form')[0].reset();
+                    $("#formError").text("");
                     $("#formSuccess").text(data.Message);
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
                     $("#formError").text(errorThrown);
+                    $("#formSuccess").text("");
                 }
             });
         });
